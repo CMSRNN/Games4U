@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+    }
+    .hidden { display: none; }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .question { margin: 20px 0; }
+    .choice { display: block; margin: 5px 0; }
+  </style>
+</head>
+<body>
+
+  <h1>Welcome to My Quiz Game</h1>
+  
+  <!-- Landing Menu -->
+  <div id="menu">
+    <button onclick="showScreen('play')">Play</button>
+    <button onclick="showScreen('manual')">Create Manually</button>
+    <button onclick="generateWithAI()">Generate with AI</button>
+  </div>
+
+  <!-- Manual Create -->
+  <div id="manual" class="hidden">
+    <h2>Create Your Quiz</h2>
+    <textarea id="manualInput" rows="6" cols="50" placeholder="Type questions like:
+Q: What is 2+2?
+A) 2
+B) 3
+C) 4*
+D) 5"></textarea><br>
+    <button onclick="startManualQuiz()">Start Quiz</button>
+    <button onclick="showScreen('menu')">Back</button>
+  </div>
+
+  <!-- Play Quiz -->
+  <div id="play" class="hidden">
+    <h2 id="qText"></h2>
+    <div id="choices"></div>
+    <p id="scoreText"></p>
+    <button onclick="showScreen('menu')">Back to Menu</button>
+  </div>
+
+  <script>
+    let questions = [];
+    let currentIndex = 0;
+    let score = 0;
+
+    function showScreen(id) {
+      document.querySelectorAll("div").forEach(div => div.classList.add("hidden"));
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    function startManualQuiz() {
+      const raw = document.getElementById("manualInput").value.trim().split("\n");
+      questions = [];
+      for (let i = 0; i < raw.length; i+=5) {
+        questions.push({
+          q: raw[i].replace("Q:","").trim(),
+          choices: [
+            raw[i+1], raw[i+2], raw[i+3], raw[i+4]
+          ],
+          answer: raw[i+1].includes("*") ? 0 :
+                  raw[i+2].includes("*") ? 1 :
+                  raw[i+3].includes("*") ? 2 : 3
+        });
+      }
+      score = 0;
+      currentIndex = 0;
+      showScreen("play");
+      showQuestion();
+    }
+
+    function showQuestion() {
+      if (currentIndex >= questions.length) {
+        document.getElementById("qText").innerText = "Game Over! Final Score: " + score;
+        document.getElementById("choices").innerHTML = "";
+        return;
+      }
+      const q = questions[currentIndex];
+      document.getElementById("qText").innerText = q.q;
+      const choicesDiv = document.getElementById("choices");
+      choicesDiv.innerHTML = "";
+      q.choices.forEach((c, i) => {
+        let btn = document.createElement("button");
+        btn.innerText = c.replace("*","");
+        btn.className = "choice";
+        btn.onclick = () => selectAnswer(i);
+        choicesDiv.appendChild(btn);
+      });
+      document.getElementById("scoreText").innerText = "Score: " + score;
+    }
+
+    function selectAnswer(i) {
+      if (i === questions[currentIndex].answer) {
+        score++;
+      }
+      currentIndex++;
+      showQuestion();
+    }
+
+    async function generateWithAI() {
+      alert("This button will connect to your backend later (AI). For now, try 'Create Manually'.");
+    }
+
+  </script>
+</body>
+</html>
